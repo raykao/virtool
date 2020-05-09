@@ -24,19 +24,26 @@ resource azurerm_subnet "web" {
   name = "web"
   resource_group_name = azurerm_resource_group.virtool.name
   virtual_network_name = azurerm_virtual_network.virtool.name
-  address_prefixes  = ["10.0.0.128/26"]
+  address_prefixes  = ["10.0.0.128/27"]
 }
 
 resource azurerm_subnet "api" {
   name = "api"
   resource_group_name = azurerm_resource_group.virtool.name
   virtual_network_name = azurerm_virtual_network.virtool.name
-  address_prefixes  = ["10.0.1.0/24"]
+  address_prefixes  = ["10.0.0.160/27"]
+}
+
+resource azurerm_subnet "mongo" {
+  name = "mongo"
+  resource_group_name = azurerm_resource_group.virtool.name
+  virtual_network_name = azurerm_virtual_network.virtool.name
+  address_prefixes  = ["10.0.0.192/27"]
 }
 
 resource azurerm_subnet "job" {
   name = "job"
   resource_group_name = azurerm_resource_group.virtool.name
   virtual_network_name = azurerm_virtual_network.virtool.name
-  address_prefixes  = ["10.0.2.0/24"]
+  address_prefixes  = ["10.0.1.0/24"]
 }
