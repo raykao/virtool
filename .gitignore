@@ -21,3 +21,7 @@ settings.json
 .cache
 .pytest_cache
 env
+
+.terraform
+tfplan
+*tfstate*

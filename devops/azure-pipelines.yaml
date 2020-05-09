@@ -1,0 +1,45 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - name: DOCKER_VERSION_STRING
+    value: "5:19.03.2~3-0~ubuntu-bionic"
+  - name: AZURE_OS_TYPE
+    value: "Linux"
+  - name: AZURE_IMAGE_PUBLISHER
+    value: "Canonical"
+  - name: AZURE_IMAGE_OFFER
+    value: "UbuntuServer"
+  - name: AZURE_IMAGE_SKU
+    value: "18.04-LTS"
+  - name: AZURE_VM_SIZE
+    value: "Standard_DS2_v2"
+
+steps:
+- script: |
+    echo $(consul-agent-ca) | base64 --decode > hashicorp_base_image/provisioners/file/opt/consul/config/ssl/consul-agent-ca.pem
+  displayName: 'Install Consul-Agent-CA'
+  failOnStderr: true
+
+# - script: |
+#     echo "Client id: $(client-id)"
+#     echo "Client secret: $(client-secret)"
+#     echo "Tenant id: $(tenant-id)"
+#     az login --service-principal -u $(client-id) -p $(client-secret) --tenant $(tenant-id) --allow-no-subscriptions
+#     az keyvault secret show -n $(consul-agent-ca-name) --vault-name $(consul-certificate-vault-name) | jq -r '.value' | base64 --decode > hashicorp_base_image/provisioners/file/opt/consul/config/ssl/consul-agent-ca.pem
+#     ls -la
+#     cat hashicorp_base_image/provisioners/file/opt/consul/config/ssl/consul-agent-ca.pem
+#   displayName: 'Retrieve consul-agent-ca-key'
+#   failOnStderr: true
+
+- task: Bash@3
+  displayName: Install Packer
+  inputs:
+    filePath: ./hashicorp_base_image/install_packer.sh
+
+- script: |
+    ./packer build hashicorp_base_image/base_image.json
+  displayName: Build Image

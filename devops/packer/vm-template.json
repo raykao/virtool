@@ -1,0 +1,77 @@
+{
+  "variables": {
+    "subscription_id": "{{env `AZURE_SUBSCRIPTION_ID`}}",
+    "tenant_id": "{{env `AZURE_TENANT_ID`}}",
+
+    "client_id" : "{{env `PACKER_SERVICE_PRINCIPAL_ID`}}",
+    "client_secret": "{{env `PACKER_SERVICE_PRINCIPAL_SECRET`}}",
+    
+    "managed_image_resource_group_name": "{{env `MANAGED_IMAGE_RG_NAME`}}",
+    "managed_image_name": "{{env `MANAGED_IMAGE_NAME`}}",
+    "build_resource_group_name": "{{env `MANAGED_IMAGE_BUILD_RG_NAME`}}",
+    "build_id": "{{env `BUILD_BUILDID`}}",
+    "commit_id": "{{env `BUILD_SOURCEVERSION`}}",
+    
+    "os_type": "{{env `AZURE_OS_TYPE`}}",
+    "image_publisher": "{{env `AZURE_IMAGE_PUBLISHER`}}",
+    "image_offer": "{{env `AZURE_IMAGE_OFFER`}}",
+    "image_sku": "{{env `AZURE_IMAGE_SKU`}}",
+    "location": "{{env `MANAGED_IMAGE_RG_LOCATION`}}",
+    "vm_size": "{{env `AZURE_VM_SIZE`}}",
+
+    "docker_version_string": "{{env `DOCKER_VERSION_STRING`}}"
+  },
+  "builders": [
+    {
+      "type": "azure-arm",
+      
+      "subscription_id": "{{user `subscription_id`}}",
+      "tenant_id": "{{user `tenant_id`}}",
+
+      "client_id": "{{user `client_id`}}",
+      "client_secret": "{{user `client_secret`}}",
+
+      "managed_image_name": "{{user `managed_image_name`}}-{{user `build_id`}}",
+      "managed_image_resource_group_name": "{{user `managed_image_resource_group_name`}}",
+      "build_resource_group_name": "{{user `build_resource_group_name`}}",
+     
+      "os_type": "{{user `os_type`}}",
+      "image_publisher": "{{user `image_publisher`}}",
+      "image_offer": "{{user `image_offer`}}",
+      "image_sku": "{{user `image_sku`}}",
+    
+      "azure_tags": {
+        "team": "devops"
+      },
+    
+      "vm_size": "{{user `vm_size`}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "{{template_dir}}/provisioners/file/opt",
+      "destination": "/tmp"
+    },
+    {
+      "type": "file",
+      "source": "{{template_dir}}/provisioners/file/etc",
+      "destination": "/tmp"
+    },
+    {
+      "type": "shell",
+      "scripts": [
+        "{{template_dir}}/provisioners/shell/00_update_system.sh"
+      ]
+    },
+    {
+      "type": "shell",
+      "environment_vars": [
+        "DOCKER_VERSION_STRING={{user `docker_version_string`}}"
+      ],
+      "scripts": [
+        "{{template_dir}}/provisioners/shell/install_docker.sh"
+      ]
+    }
+  ]
+}
