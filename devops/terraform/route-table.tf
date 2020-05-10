@@ -1,4 +1,3 @@
-
 resource azurerm_route_table "default" {
   name                          = "defaultRouteTable"
   location                      = azurerm_resource_group.virtool.location
@@ -13,7 +12,7 @@ resource azurerm_route_table "default" {
   }
 
   tags = {
-    environment = terraform.workspace
+    environment = local.environment
   }
 }
 

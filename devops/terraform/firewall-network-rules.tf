@@ -11,7 +11,7 @@ resource "azurerm_firewall_nat_rule_collection" "virtoolWeb" {
     source_addresses = ["*"]
 
     destination_addresses = [
-      azurerm_public_ip.virtool.ip_address
+      azurerm_public_ip.firewall-primary.ip_address
     ]
 
     destination_ports = [
@@ -41,7 +41,7 @@ resource "azurerm_firewall_nat_rule_collection" "adminSSH" {
     source_addresses = ["*"]
 
     destination_addresses = [
-      azurerm_public_ip.virtool.ip_address
+      azurerm_public_ip.firewall-primary.ip_address
     ]
 
     destination_ports = [

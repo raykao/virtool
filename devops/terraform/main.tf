@@ -8,7 +8,18 @@ provider "azurerm" {
   features {}
 }
 
+resource random_string "suffix" {
+  length = 4
+  upper   = false
+  special = false
+}
+
+locals {
+  suffix = var.suffix !="" ? var.suffix : random_string.suffix.result
+  environment = terraform.workspace
+}
+
 resource azurerm_resource_group "virtool" {
-  name = "core-virtool-rg"
+  name = "${local.environment}-core-virtool-rg"
   location = "canadacentral"
 }

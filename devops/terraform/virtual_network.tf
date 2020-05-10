@@ -1,6 +1,6 @@
 
 resource azurerm_virtual_network "virtool" {
-  name = "vnet-virtool"
+  name = "${local.environment}-vnet-virtool"
   location = azurerm_resource_group.virtool.location
   resource_group_name = azurerm_resource_group.virtool.name
   address_space = ["10.0.0.0/16"]
