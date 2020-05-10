@@ -9,6 +9,6 @@ provider "azurerm" {
 }
 
 resource azurerm_resource_group "virtool" {
-  name = "virtool"
+  name = "core-virtool-rg"
   location = "canadacentral"
 }

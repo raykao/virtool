@@ -47,3 +47,10 @@ resource azurerm_subnet "job" {
   virtual_network_name = azurerm_virtual_network.virtool.name
   address_prefixes  = ["10.0.1.0/24"]
 }
+
+resource azurerm_subnet "admin" {
+  name = "admin"
+  resource_group_name = azurerm_resource_group.virtool.name
+  virtual_network_name = azurerm_virtual_network.virtool.name
+  address_prefixes  = ["10.0.255.248/29"]
+}
