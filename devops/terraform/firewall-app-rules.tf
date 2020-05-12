@@ -8,13 +8,14 @@ resource azurerm_firewall_application_rule_collection "updates" {
   rule {
     name = "updateInfraRules"
 
-    source_addresses = [
-      "10.0.0.0/16",
-    ]
+    source_addresses = concat([],azurerm_virtual_network.virtool.address_space)
 
     target_fqdns = [
       "azure.archive.ubuntu.com",
-      "security.ubuntu.com"
+      "security.ubuntu.com",
+      "launchpad.net",
+      "ppa.launchpad.net",
+      "keyserver.ubuntu.com"
     ]
 
     protocol {
@@ -39,12 +40,11 @@ resource azurerm_firewall_application_rule_collection "docker" {
   rule {
     name = "dockerRules"
 
-    source_addresses = [
-      "10.0.0.0/16",
-    ]
+    source_addresses = concat([],azurerm_virtual_network.virtool.address_space)
 
     target_fqdns = [
-      "download.docker.com",
+      "*.docker.com",
+      "*.docker.io"
     ]
 
     protocol {
@@ -69,13 +69,12 @@ resource azurerm_firewall_application_rule_collection "virtool" {
   rule {
     name = "virtoolRules"
 
-    source_addresses = [
-      "10.0.0.0/16",
-    ]
+    source_addresses = concat([],azurerm_virtual_network.virtool.address_space)
 
     target_fqdns = [
       "github.com",
       "*.github.com",
+      "github-production-release-asset-2e65be.s3.amazonaws.com",
       "www.bioinformatics.babraham.ac.uk",
       "eddylab.org",
       "*.mongodb.org"
@@ -92,3 +91,29 @@ resource azurerm_firewall_application_rule_collection "virtool" {
     }
   }
 }
+
+resource azurerm_firewall_application_rule_collection "letsEncrypt" {
+  name                = "letsEncryptRules"
+  azure_firewall_name = azurerm_firewall.virtool.name
+  resource_group_name = azurerm_resource_group.virtool.name
+  priority            = 600
+  action              = "Allow"
+
+  rule {
+    name = "letsEncrypt"
+
+    source_addresses = [
+      azurerm_subnet.web.address_prefixes[0]
+    ]
+
+    target_fqdns = [
+      "*.letsencrypt.org"
+    ]
+
+    protocol {
+      port = "443"
+      type = "Https"
+    }
+  }
+}
+

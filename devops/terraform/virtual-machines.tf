@@ -1,6 +1,6 @@
 resource azurerm_resource_group "web" {
-  name = "web-virtool-rg"
-  location = azurerm_resource_group.virtool.location
+  name = "${local.environment}-virtool-web"
+  location = azurerm_virtual_network.virtool.location
 }
 
 module "virtool-web0001" {
@@ -14,8 +14,8 @@ module "virtool-web0001" {
 }
 
 resource azurerm_resource_group "admin" {
-  name = "admin-virtool-rg"
-  location = azurerm_resource_group.virtool.location
+  name = "${local.environment}-virtool-admin"
+  location = azurerm_virtual_network.virtool.location
 }
 
 module "virtool-admin0001" {
@@ -26,4 +26,19 @@ module "virtool-admin0001" {
   location            = azurerm_resource_group.admin.location
   subnet_id           = azurerm_subnet.admin.id
   lb_backend_address_pool_id  = azurerm_lb_backend_address_pool.admin.id
+}
+
+resource azurerm_resource_group "mongo" {
+  name = "${local.environment}-virtool-mongo"
+  location = azurerm_virtual_network.virtool.location
+}
+
+module "virtool-mongo001" {
+  source = "./virtual-machines"
+
+  prefix = "mongo"
+  resource_group_name = azurerm_resource_group.mongo.name
+  location            = azurerm_resource_group.mongo.location
+  subnet_id           = azurerm_subnet.mongo.id
+  lb_backend_address_pool_id  = azurerm_lb_backend_address_pool.mongo.id
 }

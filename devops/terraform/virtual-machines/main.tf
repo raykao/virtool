@@ -1,3 +1,7 @@
+data template_file "cloud-init" {
+  template = file("../packer/install.sh")
+}
+
 resource "random_string" "suffix" {
   length = 4
   upper   = false
@@ -10,7 +14,7 @@ locals {
 }
 
 resource "azurerm_network_interface" "virtool" {
-  name                = "${local.prefix}-virtool-nic-${local.suffix}"
+  name                = "nic-${local.prefix}-virtool-${local.suffix}"
   location            = var.location
   resource_group_name = var.resource_group_name
 
@@ -28,10 +32,10 @@ resource azurerm_network_interface_backend_address_pool_association "virtool" {
 }
 
 resource "azurerm_linux_virtual_machine" "virtool" {
-  name                = "${local.prefix}-virtool-machine-${local.suffix}"
+  name                = "vm-${local.prefix}-${local.suffix}"
   resource_group_name = var.resource_group_name
   location            = var.location
-  size                = "Standard_D4s_v3"
+  size                = var.size
   admin_username      = "${local.prefix}virtooladmin"
   disable_password_authentication = true
 
@@ -49,6 +53,8 @@ resource "azurerm_linux_virtual_machine" "virtool" {
     storage_account_type = "Premium_LRS"
     disk_size_gb         = 1024
   }
+
+  custom_data = base64encode(data.template_file.cloud-init.rendered)
 
   source_image_reference {
     publisher = "Canonical"

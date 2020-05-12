@@ -35,3 +35,8 @@ resource azurerm_subnet_route_table_association "admintofw" {
   subnet_id = azurerm_subnet.admin.id
   route_table_id  = azurerm_route_table.default.id
 }
+
+resource azurerm_subnet_route_table_association "mongotofw" {
+  subnet_id = azurerm_subnet.mongo.id
+  route_table_id  = azurerm_route_table.default.id
+}

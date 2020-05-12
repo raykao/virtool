@@ -8,6 +8,10 @@ variable "location" {
 variable "resource_group_name" {
 }
 
+variable "size" {
+  default = "Standard_D4s_v3"
+}
+
 variable "subnet_id" {
 }
 
