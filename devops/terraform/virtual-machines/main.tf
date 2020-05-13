@@ -1,6 +1,6 @@
-data template_file "cloud-init" {
-  template = file("../packer/install.sh")
-}
+# data template_file "cloud-init" {
+#   template = file("../packer/install.sh")
+# }
 
 resource "random_string" "suffix" {
   length = 4
@@ -54,7 +54,7 @@ resource "azurerm_linux_virtual_machine" "virtool" {
     disk_size_gb         = 1024
   }
 
-  custom_data = base64encode(data.template_file.cloud-init.rendered)
+  # custom_data = base64encode(data.template_file.cloud-init.rendered)
 
   source_image_reference {
     publisher = "Canonical"

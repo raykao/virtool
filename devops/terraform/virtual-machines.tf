@@ -13,6 +13,16 @@ module "virtool-web0001" {
   lb_backend_address_pool_id  = azurerm_lb_backend_address_pool.web.id
 }
 
+module "virtool-web0002" {
+  source = "./virtual-machines"
+
+  prefix = "web"
+  resource_group_name = azurerm_resource_group.web.name
+  location            = azurerm_resource_group.web.location
+  subnet_id           = azurerm_subnet.web.id
+  lb_backend_address_pool_id  = azurerm_lb_backend_address_pool.web.id
+}
+
 resource azurerm_resource_group "admin" {
   name = "${local.environment}-virtool-admin"
   location = azurerm_virtual_network.virtool.location

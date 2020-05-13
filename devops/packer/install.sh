@@ -13,6 +13,10 @@ BOWTIE2_VERSION=2.3.2
 SPADES_VERSION=3.11.1
 HMMER_VERSION=3.1b2
 
+# Values passed in by Terraform or Packer Template
+DOMAIN_NAME=${domain_name}
+ADMIN_EMAIL_ADDRESS=${admin_email_address}
+
 # Docker
 # https://docs.docker.com/engine/install/ubuntu/
 
@@ -88,7 +92,7 @@ tar -xvf $VIRTOOL_RELEASE_FILENAME
 rm $VIRTOOL_RELEASE_FILENAME
 sudo chown -R $VIRTOOL_USER_NAME:$VIRTOOL_USER_NAME .
 
-cat >> /etc/systemd/system/virtoold.service <<EOL
+cat > /etc/systemd/system/virtoold.service <<EOL
 [Unit]
 Description=Virtool v$VIRTOOL_VERSION An application server for NGS-based virus diagnostics.
 Documentation=https://www.virtool.ca/docs
@@ -97,13 +101,89 @@ Documentation=https://www.virtool.ca/docs
 Type=simple
 User=$VIRTOOL_USER_NAME
 WorkingDirectory=$VIRTOOL_HOME_DIR/virtool
-ExecStart=$VIRTOOL_HOME_DIR/virtool/run --host "localhost" --port 9950 --data-path="$VIRTOOL_DATA_PATH" --watch-path="$VIRTOOL_WATCH_PATH" --db="mongodb://mongo:27017" --db-name="$VIRTOOL_USER_NAME" --proc 1 --mem 2 --lg-proc 1 --lg-mem 1 --sm-proc 1 --sm-mem 1 --dev
+ExecStart=$VIRTOOL_HOME_DIR/virtool/run --host "localhost" --port 9950 --data-path="$VIRTOOL_DATA_PATH" --watch-path="$VIRTOOL_WATCH_PATH" --db-name="$VIRTOOL_USER_NAME" --proc 1 --mem 2 --lg-proc 1 --lg-mem 1 --sm-proc 1 --sm-mem 1 --dev
 
 [Install]
 WantedBy=network.target mnt-array0.mount
 EOL
 
+sudo systemctl daemon-reload
 sudo systemctl enable virtoold
 sudo systemctl start virtoold
-sudo systemctl status virtoold
 
+# Nginx
+sudo apt-get -y install nginx
+sudo systemctl enable nginx
+sudo systemctl start nginx
+
+# Certbot https://certbot.eff.org/lets-encrypt/ubuntubionic-nginx.html
+sudo apt-get update
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository universe
+sudo add-apt-repository -y ppa:certbot/certbot
+sudo apt-get update
+
+sudo apt-get install -y certbot python3-certbot-nginx
+
+sudo certbot --nginx -n --agree-tos -d $DOMAIN_NAME -m $ADMIN_EMAIL_ADDRESS 
+
+sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bak
+
+cat > /etc/nginx/sites-available/default <<EOL
+upstream virtool {
+  server 127.0.0.1:9950;
+}
+
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        root /var/www/html;
+
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name _;
+
+        location / {
+                try_files $uri $uri/ =404;
+        }
+}
+
+
+server {
+
+        root /var/www/html;
+
+        index index.html index.htm index.nginx-debian.html;
+    server_name $DOMAIN_NAME; # managed by Certbot
+
+
+        location / {
+                proxy_pass http://virtool;
+        }
+
+    listen [::]:443 ssl ipv6only=on; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/$DOMAIN_NAME/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN_NAME/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+server {
+    if (\$host = $DOMAIN_NAME) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+        listen 80 ;
+        listen [::]:80 ;
+    server_name $DOMAIN_NAME;
+    return 404; # managed by Certbot
+
+
+}
+EOL
+
+sudo systemctl daemon-reload
+sudo systemctl restart nginx
