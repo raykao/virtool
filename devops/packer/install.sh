@@ -13,8 +13,6 @@ BOWTIE2_VERSION=2.3.2
 SPADES_VERSION=3.11.1
 HMMER_VERSION=3.1b2
 
-MONGODB_VERSION=3.6 
-
 # Docker
 # https://docs.docker.com/engine/install/ubuntu/
 
@@ -81,16 +79,6 @@ sudo ln -s /opt/hmmer/binaries/* /usr/local/bin
 cd ~
 hmmscan -h
 hmmpress -h
- 
-cd ~
-sudo apt-get install gnupg -y
-wget -qO - https://www.mongodb.org/static/pgp/server-$MONGODB_VERSION.asc | sudo apt-key add -
-echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/$MONGODB_VERSION main" | sudo tee /etc/apt/sources.list.d/mongodb-org-$MONGODB_VERSION.list
-sudo apt-get update
-sudo apt-get install mongodb-org -y
-sudo mkdir -p /data/db
-sudo systemctl start mongod
-sudo systemctl status mongod
 
 # Install Virtool
 sudo adduser --disabled-password --disabled-login --home $VIRTOOL_HOME_DIR  --shell /bin/nologin --gecos $VIRTOOL_USER_NAME,$VIRTOOL_USER_NAME $VIRTOOL_USER_NAME
