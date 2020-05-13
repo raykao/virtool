@@ -7,8 +7,7 @@ resource azurerm_lb "web" {
   frontend_ip_configuration {
     name    = "privateIP"
     subnet_id = azurerm_subnet.loadbalancers.id
-    private_ip_address_allocation = "Static"
-    private_ip_address  = "10.0.0.68"
+    private_ip_address_allocation = "Dynamic"
   }
 }
 
@@ -58,8 +57,7 @@ resource azurerm_lb "api" {
   frontend_ip_configuration {
     name    = "privateIP"
     subnet_id = azurerm_subnet.loadbalancers.id
-    private_ip_address_allocation = "Static"
-    private_ip_address  = "10.0.0.69"
+    private_ip_address_allocation = "Dynamic"
   }
 }
 
@@ -78,8 +76,7 @@ resource azurerm_lb "job" {
   frontend_ip_configuration {
     name    = "privateIP"
     subnet_id = azurerm_subnet.loadbalancers.id
-    private_ip_address_allocation = "Static"
-    private_ip_address  = "10.0.0.70"
+    private_ip_address_allocation = "Dynamic"
   }
 }
 
@@ -98,8 +95,7 @@ resource azurerm_lb "admin" {
   frontend_ip_configuration {
     name    = "privateIP"
     subnet_id = azurerm_subnet.loadbalancers.id
-    private_ip_address_allocation = "Static"
-    private_ip_address  = "10.0.0.71"
+    private_ip_address_allocation = "Dynamic"
   }
 }
 
@@ -118,8 +114,7 @@ resource azurerm_lb "mongo" {
   frontend_ip_configuration {
     name    = "privateIP"
     subnet_id = azurerm_subnet.loadbalancers.id
-    private_ip_address_allocation = "Static"
-    private_ip_address  = "10.0.0.72"
+    private_ip_address_allocation = "Dynamic"
   }
 }
 
