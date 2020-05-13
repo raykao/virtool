@@ -33,14 +33,14 @@ resource azurerm_network_security_group "web" {
     resource_group_name = azurerm_resource_group.web.name
 
     security_rule {
-        name                       = "allowHttpFromAzureLB"
+        name                       = "allowHealthProbeFromAzureLB"
         priority                   = 100
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "Tcp"
         source_port_range          = "*"
         destination_port_range     = "80"
-        source_address_prefix = "AzureLoadBalancer"
+        source_address_prefix      = "AzureLoadBalancer"
         destination_address_prefix = join(", ", azurerm_subnet.web.address_prefixes)
     }
 
@@ -58,7 +58,7 @@ resource azurerm_network_security_group "web" {
 
     security_rule {
         name                       = "allowHttpsFromAzureFW"
-        priority                   = 115
+        priority                   = 111
         direction                  = "Inbound"
         access                     = "Allow"
         protocol                   = "Tcp"
