@@ -76,11 +76,38 @@ sudo apt-get install mongodb-org -y
 sudo mkdir -p /data/db
 sudo systemctl start mongod
 sudo systemctl status mongod
- 
-mongo
- 
-cd ~
-wget https://github.com/virtool/virtool/releases/download/v3.9.8/virtool.tar.gz
-tar -xvf virtool.tar.gz
-cd virtool
-./run --host "0.0.0.0" --port 9950 --data-path="data" --watch-path="watch" --db="mongodb://localhost:27017" --db-name="virtool" --proc 1 --mem 2 --lg-proc 1 --lg-mem 1 --sm-proc 1 --sm-mem 1 --dev
+
+# Install Virtool
+
+VIRTOOL_USER_NAME=virtool
+VIRTOOL_HOME_DIR=/home/$VIRTOOL_USER_NAME
+VIRTOOL_VERSION=3.9.8
+VIRTOOL_RELEASE_FILENAME=virtool.tar.gz
+VIRTOOL_DATA_PATH=data
+VIRTOOL_WATCH_PATH=watch
+
+sudo adduser --disabled-password --disabled-login --home $VIRTOOL_HOME_DIR  --shell /bin/nologin --gecos $VIRTOOL_USER_NAME,$VIRTOOL_USER_NAME $VIRTOOL_USER_NAME
+cd $VIRTOOL_HOME_DIR
+wget https://github.com/virtool/virtool/releases/download/v$VIRTOOL_VERSION/$VIRTOOL_RELEASE_FILENAME
+tar -xvf $VIRTOOL_RELEASE_FILENAME
+rm $VIRTOOL_RELEASE_FILENAME
+sudo chown -R $VIRTOOL_USER_NAME:$VIRTOOL_USER_NAME .
+
+cat >> /etc/systemd/system/virtoold.service <<EOL
+[Unit]
+Description=Virtool v$VIRTOOL_VERSION An application server for NGS-based virus diagnostics.
+Documentation=https://www.virtool.ca/docs
+
+[Service]
+Type=simple
+User=$VIRTOOL_USER_NAME
+WorkingDirectory=$VIRTOOL_HOME_DIR/virtool
+ExecStart=$VIRTOOL_HOME_DIR/virtool/run --host "localhost" --port 9950 --data-path="$VIRTOOL_DATA_PATH" --watch-path="$VIRTOOL_WATCH_PATH" --db="mongodb://mongo:27017" --db-name="$VIRTOOL_USER_NAME" --proc 1 --mem 2 --lg-proc 1 --lg-mem 1 --sm-proc 1 --sm-mem 1 --dev
+
+[Install]
+WantedBy=network.target mnt-array0.mount
+EOL
+
+sudo systemctl enable virtoold
+sudo systemctl start virtoold
+sudo systemctl status virtoold

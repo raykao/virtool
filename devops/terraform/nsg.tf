@@ -1,3 +1,4 @@
+# Admin
 resource azurerm_network_security_group "admin" {
     name                = "adminSubnetNSG"
     location            = azurerm_resource_group.admin.location
@@ -25,7 +26,7 @@ resource azurerm_subnet_network_security_group_association "admin" {
     network_security_group_id   = azurerm_network_security_group.admin.id
 }
 
-
+# Web
 resource azurerm_network_security_group "web" {
     name                = "webSubnetNSG"
     location            = azurerm_resource_group.web.location
